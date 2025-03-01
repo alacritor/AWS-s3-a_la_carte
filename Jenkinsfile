@@ -6,6 +6,32 @@ pipeline {
     tools {
         jfrog 'Jfrog_CLI' // Ensuring JFrog CLI is available
     }
+
+     // JFrog Artifactory Integration
+        stage('JFrog Testing') {
+            steps {
+                script {
+                    jf '-v' // Check JFrog CLI version
+                    jf 'c show' // Show JFrog configurations
+                    jf 'rt ping' // Ping Artifactory
+                    sh 'touch test-file' // Create a test file
+                    jf 'rt u test-file Jfrog_cli/' // Upload test file to Artifactory
+                    jf 'rt bp' // Build publish
+                    jf 'rt dl Jfrog_cli/test-file' // Download test file
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Terraform and JFrog operations completed successfully!'
+        }
+        failure {
+            echo 'Pipeline execution failed!'
+        }
+    }
+
+    // Terraform Integration
     stages {
         stage('Set AWS Credentials') {
             steps {
@@ -59,34 +85,10 @@ pipeline {
                 }
             }
         }
-        
-        // JFrog Artifactory Integration
-        stage('JFrog Testing') {
-            steps {
-                script {
-                    jf '-v' // Check JFrog CLI version
-                    jf 'c show' // Show JFrog configurations
-                    jf 'rt ping' // Ping Artifactory
-                    sh 'touch test-file' // Create a test file
-                    jf 'rt u test-file Jfrog_cli/' // Upload test file to Artifactory
-                    jf 'rt bp' // Build publish
-                    jf 'rt dl Jfrog_cli/test-file' // Download test file
-                }
-            }
-        }
-    }
-    post {
-        success {
-            echo 'Terraform and JFrog operations completed successfully!'
-        }
-        failure {
-            echo 'Pipeline execution failed!'
-        }
-    }
-}
+    }     
+       
 
-
-
+// Old Pipeline Jenkins File Fossil
 
 // pipeline {
 //     agent any
